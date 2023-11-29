@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字瀑布</title>
+    <style>
+        *{
+            margin: 0;padding: 0;
+        }
+        canvas{
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            position:absolute;
+            z-index:-2;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <div style="color: red">
+        你好
+    </div>
+    <script name="canvas" type="text/javascript" charset="utf-8" async defer>
+        const cvs = document.querySelector('canvas');
+        const ctx = cvs.getContext('2d');
+        // 控制字体大小
+        const FONT = 20
+        // 控制速度
+        const SPEED = 50
+        // 控制出现的字符集
+        const CHAR = '0123456789abcdefghijklmnopqrstuvwxyz'
+
+        function init() {
+            cvs.width = window.innerWidth * devicePixelRatio;
+            cvs.height = window.innerHeight * devicePixelRatio
+        }
+        init()
+
+        const fontSize = FONT * devicePixelRatio;
+        ctx.font = `${fontSize}px "Roboto Mono"`;
+        const columnCount = Math.floor(cvs.width / fontSize);
+        const charIndex = new Array(columnCount).fill(0);
+        ctx.fillStyle = "#fff";
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(0,0,cvs.width,cvs.height);
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = "#6BE445";
+            for (let i = 0; i < columnCount; i++) {
+                const text = getRandomChar()
+                const x = i * fontSize;
+                const y = charIndex[i] * fontSize;
+                ctx.fillText(text,x,y);
+                if(y > cvs.height && Math.random() > 0.99){
+                    charIndex[i] = 0;
+                }else{
+                    charIndex[i]++;
+                }
+            }
+        }
+        function getRandomChar() {
+            const str = CHAR;
+            return str[Math.floor(Math.random() * str.length)]
+        }
+        draw();
+        setInterval(draw,SPEED)
+    </script>
+</body>
+
+</html>
