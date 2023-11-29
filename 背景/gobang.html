@@ -1,0 +1,437 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-05-29 07:56:21
+ * @LastEditTime: 2021-05-29 17:55:05
+ * @FilePath: \demo\canvas_demo\demo_items\gobang.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas_demo drawing_board</title>
+  <style>
+    *{
+      user-select: none;
+      margin: 0;
+      padding:0;
+    }
+    body{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container{
+      box-sizing: border-box;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      border:1px solid #000;
+      border-radius: 10px;
+      background-color: #d8d8d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas{
+      border-radius: 5px;
+      border:1px solid #555;
+      background-color: #fff;
+    }
+    .message{
+      position: absolute;
+      right: 50px;
+      bottom: 20px;
+      width: auto;
+      height: 20px;
+      line-height: 20px;
+      font:14px '宋体';
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coords{
+      margin-right: 10px;
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <canvas id="canvas" width="640px" height="640px"></canvas>
+    <div class="message">
+      <div class="coords"></div>
+    </div>
+  </div>
+
+  <script type='text/javascript'>
+  function getRepeat(arr,n){//获取重复值的个数
+    let counter=0
+    arr.forEach(i=>{
+        if(i===n){
+            counter++
+        }
+    })
+    return counter
+}
+  const chessboard={
+    context:null,
+    chess:{
+      0:'#d8d8d8',
+      1:'#000'
+    },
+    coords:null,
+    chess_current:null,
+    chess_arr:[],
+    play_types:['round','AI','user'],
+    play_type:'user',
+    is_done:false,
+    render_border:function(){
+      let ctx=this.context
+      ctx.save()
+
+      ctx.translate(50,50)
+      for(let i=0;i<19;i++){
+        ctx.beginPath()
+        ctx.moveTo(i*30,0)
+        ctx.lineTo(i*30,540)
+        ctx.stroke()
+        ctx.closePath()
+      }
+      for(let i=0;i<19;i++){
+        ctx.beginPath()
+        ctx.moveTo(0,i*30)
+        ctx.lineTo(540,i*30)
+        ctx.stroke()
+        ctx.closePath()
+      }
+
+      ctx.beginPath()
+      ctx.arc(270,270,5,0,2*Math.PI)
+      ctx.fillStyle='#000'
+      ctx.fill()
+      ctx.closePath()
+
+      for(let i=0;i<19;i++){
+        for(let a=0;a<19;a++){
+          let point={
+            x:a*30,
+            y:i*30,
+            status:-1,
+            power:0
+          }
+          chessboard.chess_arr.push(point)
+        }
+      }
+      console.log(chessboard.chess_arr)
+
+    },
+    play:function(AI){
+      let ctx=this.context
+      if(this.chess_current===null){
+        //黑棋先动
+        this.chess_current={
+          user:1,
+          AI:0,
+          current:'user',
+          color:'#000',
+          change_play:function(){
+            this.current=this.current==='user'?'AI':'user'
+            this.change_color()
+          },
+          change_color:function(){
+            this.color=this[this.current]===1?'#000':'#b3b3b3'
+          }
+        }
+      }
+      let x,y,point;
+      let arr=this.chess_arr
+      if(this.chess_current.current==='AI'){
+        x=AI.x
+        y=AI.y
+        point=arr.find(i=>i.x===x&&i.y===y)
+      }else{
+        x=this.coords.x
+        y=this.coords.y
+        
+        point=arr.find(i=>x>=i.x-15&&x<i.x+15&&y>=i.y-15&&y<i.y+15)
+        /*console.log(x)
+        console.log(y)
+        console.log(point)*/
+        x=point.x
+        y=point.y
+
+        if(point.status==0||point.status==1){
+          return
+        }
+      }
+      
+      ctx.beginPath()
+      ctx.arc(x,y,13,0,2*Math.PI)
+      let gradient=ctx.createRadialGradient(x,y,1,x,y,13)
+      gradient.addColorStop(1,this.chess_current.color)
+      gradient.addColorStop(0,this.chess_current.color==='#000'?'#666':'#f0f0f0')
+      ctx.fillStyle=gradient
+      ctx.fill()
+      ctx.closePath()
+
+      point.status=this.chess_current[this.chess_current['current']]
+      //point.power
+      if(this.check(point)){
+        if(this.chess_current.current==='user'){
+          window.alert('你赢了')
+        }else{
+          window.alert('你输了')
+        }
+      }
+      this.chess_current.change_play()
+      if(this.chess_current.current==='AI'){
+        this.AI_play()
+      }
+    },
+    check(p){
+      let chess_arr=chessboard.chess_arr
+      let arr=[]
+      let result=null
+      let counter=0
+      let check_fun=function(arr){
+        //console.log(arr)
+        if(arr.length<=5){//只有5个的情况
+          result=arr.every(i=>i.status===p.status)?true:null
+        }else if(arr.length===6){//6个的情况
+          if(getRepeat(arr,0)>=5||getRepeat(arr,1)>=5){
+            for(let i=0;i<arr.length;i++){
+              if(arr[i]===p.status){
+                counter++
+                if(counter===5){
+                  result=true
+                  break; 
+                }
+              }else{
+                counter=0
+                if(i>=1){
+                  result=null
+                  break;
+                }
+              }
+            }
+          }
+        }else if(arr.length===7){//7个的情况
+          if(getRepeat(arr,0)>=5||getRepeat(arr,1)>=5){
+            for(let i=0;i<arr.length;i++){
+              if(arr[i]===p.status){
+                counter++
+                if(counter===5){
+                  result=true
+                  break; 
+                }
+              }else{
+                counter=0
+                if(i>=2){
+                  result=null
+                  break;
+                }
+              }
+            }
+          }
+        }else if(arr.length===8){//8个的情况
+          if(getRepeat(arr,0)>=5||getRepeat(arr,1)>=5){
+            for(let i=0;i<arr.length;i++){
+              if(arr[i]===p.status){
+                counter++
+                if(counter===5){
+                  result=true
+                  break; 
+                }
+              }else{
+                counter=0
+                if(i>=3){
+                  result=null
+                  break;
+                }
+              }
+            }
+          }
+        }else if(arr.length===9){//9个的情况
+          if(getRepeat(arr,0)>=5||getRepeat(arr,1)>=5){
+            for(let i=0;i<arr.length;i++){
+              if(arr[i]===p.status){
+                counter++
+                if(counter===5){
+                  result=true
+                  break; 
+                }
+              }else{
+                counter=0
+                if(i>=4){
+                  result=null
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      //判断水平方向
+      arr=chess_arr.filter(i=>i.x>=p.x-120&&i.x<=p.x+120&&i.y===p.y).map(i=>i.status)
+      check_fun(arr)
+      //判断竖直方向
+      if(result===null){
+        arr=chess_arr.filter(i=>i.y>=p.y-120&&i.y<=p.y+120&&i.x===p.x).map(i=>i.status)
+        check_fun(arr)
+      }
+      
+
+      //判断斜向右方向
+      if(result===null){
+        arr=chess_arr.filter(i=>i.y===(p.x+p.y-i.x)&&i.x>=((p.x/30-4)*30)&&i.x<=((p.x/30+4)*30)).map(i=>i.status)
+        check_fun(arr)
+      }
+      
+
+      //判断斜向左方向
+      if(result===null){
+        arr=chess_arr.filter(i=>i.y===(i.x+p.y-p.x)&&i.x>=((p.x/30-4)*30)&&i.x<=((p.x/30+4)*30)).map(i=>i.status)
+        check_fun(arr)
+      }
+
+      //处理结果
+      if(result!==null){
+        chessboard.is_done=true
+        return result
+      }
+
+    },
+    AI_play:function(){//简单AI
+      if(this.is_done) return
+      let _this=this
+      let ctx=this.context
+      let arr=chessboard.chess_arr
+      //let player_arr=arr.filter(i=>i.status===1)
+      //let AI_arr=arr.filter(i=>i.status===0)
+      //console.log(player_arr)
+      //console.log(AI_arr)
+      
+      let getRandom=function(){
+        let x=(Math.random()*18).toFixed(0)*30
+        let y=(Math.random()*18).toFixed(0)*30
+        let status=-1
+        return {x,y,status}
+      }
+      let play=function(AI_point){
+        let find_target=_this.chess_arr.find(i=>i.x===AI_point.x&&i.y===AI_point.y)
+        /*console.log(AI_point)
+        console.log(find_target)*/
+        if(find_target.status===-1){
+          _this.play(AI_point)
+        }else{
+          AI_point=getRandom()
+          play(AI_point)
+        }
+      }
+      let AI_point=getRandom() 
+      play(AI_point)
+          
+    },
+    set_power(p){
+      /** 
+       * 最高权限  活四   -1 0 0 0 0 -1  => 10000
+       *          死四    1 0 0 0 0 -1  或者 -1 0 0 0 0 1 或者 0 0 0 -1 0 或者 0 0 -1 0 0  =>9999
+       *          活三    近三 0 0 0 * -1  =>900 或 远三 0 0 0 -1 *  =>700
+       *          死三    0 0 * 0  =>1000
+       *          单子  5  双子 5*5  
+      */           
+      
+      let arr=chessboard.chess_arr
+      let target=arr.find(i=>i.x===p.x&&i.y===p.y)
+
+      //右
+      for(let i=1;i<=5;i++){
+        
+      }
+      //左
+      //上右
+      //上左
+      //上
+      //下右
+      //下左
+      //下
+    }
+
+  }
+  let coords=document.querySelector('.coords')
+  let canvas=document.querySelector('#canvas')
+  let ctx=canvas.getContext('2d')
+  chessboard.context=ctx
+
+  chessboard.render_border() 
+
+
+  canvas.onmousemove=e=>{
+    
+    //显示坐标轴，和画板尺寸
+    let x,y;
+    let _x=e.offsetX-50
+    let _y=e.offsetY-50
+    if(_x>=-13&&_x<=553){
+      if(_y<-13||_y>553){
+        x=0
+      }else{
+        x=_x
+      }
+    }else{
+      x=0
+    }
+    if(_y>=-13&&_y<=553){
+      if(_x<=-13||_x>553){
+        y=0
+      }else{
+        y=_y
+      }
+    }else{
+      y=0
+    }
+    /* console.log(_x)
+    console.log(_y)
+    console.log(x)
+    console.log(y) */
+    coords.innerHTML='X:'+x+' , Y:'+y
+
+    chessboard.coords={x,y,_x:e.offsetX,_y:e.offsetY}
+  }
+
+  canvas.onmousedown=e=>{
+    if(chessboard.is_done) return 
+    let _x=chessboard.coords._x
+    let _y=chessboard.coords._y
+    if(_x<40||_x>603||_y<40&&_y>603){
+      return
+    }
+    console.log('onmousedown')
+    let ctx=chessboard.context
+    let x=chessboard.coords.x
+    let y=chessboard.coords.y
+    let chess=chessboard.chess_current
+    chessboard.play()
+    /* ctx.beginPath()
+    ctx.arc(x,y,10,0,2*Math.PI)
+    ctx.fillStyle=chess.color
+    ctx.fill()
+    ctx.closePath() */
+
+  }
+  canvas.onmouseup=e=>{
+    
+  }
+  </script>
+
+</body>
+</html>

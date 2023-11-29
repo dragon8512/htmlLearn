@@ -1,0 +1,279 @@
+<!--
+ * @Author: wwssaabb 
+ * @Date: 2021-06-Mo 10:18:24 
+ * @Last Modified by:   wwssaabb 
+ * @Last Modified time: 2021-06-Mo 10:18:24 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fireworks</title>
+  <style>
+    *{
+      margin: 0;
+      padding:0;
+      user-select: none;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+    body{
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coord{
+      position: fixed;
+      padding: 10px;
+      top: 0;
+      right: 0;
+      background-color: #000;
+      color: #fff;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id='canvas'></canvas>
+  <div class="coord"></div>
+
+  <script>
+    let c_w=document.body.clientWidth
+    let c_h=document.body.clientHeight
+    let canvas=document.querySelector('canvas')
+    let coord=document.querySelector('.coord')
+    canvas.setAttribute('width',c_w+'px')
+    canvas.setAttribute('height',c_h+'px')
+    window.onresize=()=>{   //浏览器尺寸变化时更新canvas
+      let c_w=document.body.clientWidth
+      let c_h=document.body.clientHeight
+      canvas.setAttribute('width',c_w+'px')
+      canvas.setAttribute('height',c_h+'px')
+      Firework.prototype.origin={
+        x:canvas.clientWidth/2,
+        y:canvas.clientHeight,
+      }
+    }
+    canvas.onmousemove=e=>{
+      coord.innerHTML='<span>x:'+e.offsetX+'</span></br><span>y:'+e.offsetY+'</span>'
+    }
+    let ctx=canvas.getContext('2d')
+
+    //保存烟花数组
+    let fireworks=[]
+    //烟花颗粒的数组
+    let particles=[]
+    //获取随机数函数
+    function random(l,r){   
+      return Math.random()*(r-l)+l
+    }
+    //获取两点之间的距离
+    function getDistance(x1,y1,x2,y2){
+      return Math.sqrt(Math.pow((x2-x1),2)+Math.pow((y2-y1),2))
+    }
+
+    function Firework(ex,ey,sx=this.origin.x,sy=this.origin.y){
+      //开始的位置 是origin的位置
+      this.x=sx
+      this.y=sy
+
+      //开始的位置
+      this.sx=sx
+      this.sy=sy
+
+      //目标的位置
+      this.ex=ex
+      this.ey=ey
+
+      //到目标的距离
+      this.distance=Math.round(getDistance(this.ex,this.ey,this.sx,this.sy))
+
+      //当前已近走的距离
+      this.distanceCurrent=0
+
+      //烟花的倾斜角
+      this.angle=Math.atan2(ey-sy,ex-sx)
+
+      //随机颜色
+      this.color='rgba('+parseInt(random(0,250))+','+parseInt(random(0,250))+','+parseInt(random(0,250))+','+(random(.8,1)).toFixed(2)+')'
+      
+      //初始速度
+      this.speed=1.2
+
+      //加速度
+      this.acceleration=random(1.015,1.02)
+
+      //烟花上升过程分为3段
+      this.coordinateCount=3
+      this.coordinates=[]
+
+      //用初始位置初始化烟花位置数组
+      while(this.coordinateCount--){
+        this.coordinates.push([this.sx,this.sy])
+      }
+      console.log(this.coordinates)
+    }
+    Firework.prototype.origin={
+      x:canvas.clientWidth/2,
+      y:canvas.clientHeight,
+    }
+    Firework.prototype.draw=function(){
+      ctx.beginPath()
+      ctx.lineWidth=3
+      ctx.lineCap='round'
+
+      let gradient=ctx.createLinearGradient(this.x,this.y,this.coordinates[this.coordinates.length-1][0],this.coordinates[this.coordinates.length-1][1])
+      gradient.addColorStop(0,this.color)
+      gradient.addColorStop(.25,this.color.match(/rgba\(\d+\,\d+\,\d+\,/g)+'.85)')
+      gradient.addColorStop(.75,this.color.match(/rgba\(\d+\,\d+\,\d+\,/g)+'.45)')
+      gradient.addColorStop(1,this.color.match(/rgba\(\d+\,\d+\,\d+\,/g)+'.20)')
+
+      ctx.strokeStyle=gradient
+      ctx.moveTo(this.coordinates[this.coordinates.length-1][0],this.coordinates[this.coordinates.length-1][1])
+      ctx.lineTo(this.x,this.y)
+      ctx.stroke()
+      ctx.closePath()
+
+      this.updated()
+    }
+    Firework.prototype.updated=function(index){
+      //更新烟花位置信息
+      //先移除最后一个坐标，然后把上一个位置插到数组头部
+      this.coordinates.pop()
+      this.coordinates.unshift([this.x,this.y])
+
+      //使速度增加
+      this.speed*=this.acceleration
+
+      //x,y的偏移量
+      let vx=Math.cos(this.angle)*this.speed,
+          vy=Math.sin(this.angle)*this.speed
+
+      //计算是否走完行程
+      this.distanceCurrent=getDistance(this.sx,this.sy,this.x+vx,this.y+vy)
+      if(this.distanceCurrent>=this.distance){
+        console.log('boom')
+        fireworks.splice(index,1)
+        createParticle(this.ex,this.ey,this.color)
+      }else{
+        //更新烟花位置
+        this.x+=vx
+        this.y+=vy
+      }
+    }
+
+    //爆炸颗粒对象
+
+    function Particle(x,y,color){
+      this.x=x
+      this.y=y
+
+      //角度
+      this.angle=random(0,2*Math.PI)
+      //速度
+      this.speed=random(1,15)
+      //摩擦系数
+      this.friction=.92
+      //重力加速度
+      this.gravity=random(1,1.5)
+      /// 透明度
+      this.alpha=1;
+      // 颜色
+      this.color=color.match(/rgba\(\d+\,\d+\,\d+\,/g)[0]+this.alpha+')'
+      console.log(this.color)
+      
+      // 亮度的衰变率
+      this.decay=random(0.010,0.020)
+
+      this.coordinates=[];
+      // 这里我把颗粒的路径分成了5段来绘制
+      this.coordinateCount=parseInt(random(5,10));
+      while(this.coordinateCount--){
+          this.coordinates.push([this.x,this.y])
+      }
+    }
+
+      Particle.prototype.draw=function(){
+      ctx.beginPath();
+      ctx.lineWidth=random(.1,4)
+      ctx.moveTo(this.coordinates[this.coordinates.length-1][0],this.coordinates[this.coordinates.length-1][1])
+      ctx.lineTo(this.x,this.y)
+      
+      let gradient=ctx.createLinearGradient(this.x,this.y,this.coordinates[this.coordinates.length-1][0],this.coordinates[this.coordinates.length-1][1])
+      gradient.addColorStop(0,this.color.match(/rgba\(\d+\,\d+\,\d+\,/g)+'1)')
+      gradient.addColorStop(.3,this.color)
+      gradient.addColorStop(1,this.color.match(/rgba\(\d+\,\d+\,\d+\,/g)+'0)')
+
+      ctx.strokeStyle=gradient
+
+      //ctx.strokeStyle=this.color;
+      ctx.stroke();
+    }
+    Particle.prototype.update=function(index){
+      //首先我们要移除坐标数组中的最后一个坐标，然后把上一个位置插入到数组的最前面
+      this.coordinates.pop()
+      this.coordinates.unshift([this.x,this.y])
+
+      // 增加摩檫力，让粒子跌落的速度变慢
+      this.speed*=this.friction;
+
+      this.x+=Math.cos(this.angle)*this.speed;
+      this.y+=Math.sin(this.angle)*this.speed+this.gravity;
+
+      //让透明度不断变小
+      this.alpha-=this.decay;
+
+      //如果透明度低于decay值了，说明肉眼已经看不到了，这时我们就将起销毁
+      if(this.alpha<=this.decay){
+          particles.splice(index,1)
+      }
+    }
+
+    // 写一个创建烟花爆炸效果的函数
+    function createParticle(x,y,color){
+        let partcicleCount=300
+        console.log(color)
+        while(partcicleCount--){
+            particles.push(new Particle(x,y,color))
+        }
+        console.log(particles)
+    }
+
+    canvas.onclick=e=>{
+      let x=e.offsetX
+      let y=e.offsetY
+      let fw=new Firework(x,y)
+      if(fw.distance>=400){
+        fireworks.push(fw)
+      }
+    }
+
+    function run(){
+      ctx.fillStyle='rgba(0,0,0,.5)'
+      ctx.fillRect(0,0,c_w,c_h)
+      var i=fireworks.length
+      while(i--){
+        fireworks[i].draw()
+        //console.log(fireworks[i])
+        if(fireworks[i]){
+          fireworks[i].updated(i)
+        }
+      }
+      var k=particles.length;
+      while(k--){
+        particles[k].draw();
+        particles[k].update(k);
+      }
+    }
+
+    setInterval(run,16.6)
+
+  </script>
+</body>
+</html>

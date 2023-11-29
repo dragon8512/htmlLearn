@@ -1,0 +1,102 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-05-27 07:57:51
+ * @LastEditTime: 2021-05-27 10:26:34
+ * @FilePath: \demo\canvas_demo\demo_items\scratch_card.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>canvas_scratch_card</title>
+    <style>
+        *{
+          margin:0;
+          padding:0;
+        }
+        body{
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .container{
+          width: 500px;
+          height: 200px;
+          position: relative;
+        }
+        .container .jp{
+          user-select: none;
+          width: 500px;
+          height: 200px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          font: bold 40px '楷体';
+          color: #000;
+          text-align: center;
+          line-height: 200px;
+          z-index: 5;
+        }
+        #canvas{
+          width: 500px;
+          height: 200px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 10;
+        }
+      </style>
+</head>
+<body>
+  
+  <div class="container">
+    <div class="jp"></div>
+    <canvas id="canvas" width="500px" height="200px"></canvas>
+  </div>
+
+<script type="text/javascript">
+    let jp=document.getElementsByClassName('jp')[0]
+    let random=Math.random().toFixed(2)
+    jp.innerHTML=random<0.4?'谢谢惠顾':(random<0.7?'三等奖':(random<0.9?'二等奖':'一等奖'))
+    
+    let ggk=document.querySelector('#container')
+    let canvas=document.querySelector('#canvas')
+    let ctx=canvas.getContext('2d')
+
+    ctx.beginPath()
+    ctx.fillStyle='#b4b3b1'
+    ctx.fillRect(0,0,500,200)
+    ctx.font='bold 24px 宋体'
+    ctx.fillStyle='#f8f8f8'
+    ctx.fillText('刮刮卡',20,180)
+    ctx.stroke()
+
+    //监听刮奖区的点击
+    let is_scratch=false
+    canvas.onmousedown=()=>{
+      is_scratch=true
+    }
+
+    //监听刮奖区鼠标移动
+    canvas.onmousemove=e=>{
+      if(is_scratch){
+        ctx.arc(e.offsetX,e.offsetY,20,0,2*Math.PI)
+        ctx.fillStyle='#b4b3b1'
+        ctx.globalCompositeOperation='destination-out'
+        ctx.fill()
+        ctx.closePath()
+      }
+    }
+
+    //监听刮奖区的鼠标抬起
+    canvas.onmouseup=()=>{
+      is_scratch=false
+    }
+
+</script>
+
+</body>
+</html>

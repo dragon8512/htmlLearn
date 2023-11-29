@@ -1,0 +1,467 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-05-27 10:33:05
+ * @LastEditTime: 2021-05-28 17:54:17
+ * @FilePath: \demo\canvas_demo\demo_items\drawing_board.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas_demo drawing_board</title>
+  <style>
+    *{
+      user-select: none;
+      margin: 0;
+      padding:0;
+    }
+    body{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container{
+      box-sizing: border-box;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      border:1px solid #000;
+      border-radius: 10px;
+      background-color: #d8d8d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas{
+      border-radius: 5px;
+      border:1px solid #555;
+      background-color: #fff;
+    }
+    .tools{
+      position: absolute;
+      top: 0;
+      left: 50px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .tools div{
+      box-sizing: border-box;
+      width: 40px;
+      height: 40px;
+      margin:10px 30px 0 0;
+      border-radius: 5px;
+      border:1px solid #f8f8f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .tools img{
+      width: 25px;
+      height: 25px;
+      filter: contrast(.2);
+    }
+    .pixel{
+      display: flex;
+      flex-direction: column;
+    }
+    .pixel .pixel_line{
+      width: 80%;
+      margin: 0;
+      border:none;
+    }
+    .pixel input{
+      box-sizing: border-box;
+      width: 100%;
+      height: 20px;
+      text-align: center;
+    }
+
+    .pixel .pixel-line-wrap{
+      width: 40px;
+      height: 20px;
+      margin: 0;
+    }
+    .color{
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .color .color_content{
+      width: 100%;
+      height: 20px;
+      margin: 0;
+    }
+    .color input{
+      box-sizing: border-box;
+      width: 100%;
+      height: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .tools-item.choose_tool{
+      border: 1px solid #00b2ff;
+      box-shadow:2px 2px 10px #00b2ff;
+    }
+    .message{
+      position: absolute;
+      right: 50px;
+      bottom: 20px;
+      width: auto;
+      height: 20px;
+      line-height: 20px;
+      font:14px '宋体';
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coords{
+      margin-right: 10px;
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      border-radius: 5px;
+    }
+    .board-size{
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      border-radius: 5px;
+    }
+    .show-img-wrap{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 500px;
+      height: 500px;
+      border: 2px solid #333;
+      box-shadow: 5px 5px 10px rgba(0,0,0,.5);
+      border-radius: 10px;
+      background-color: #fff;
+      display: none;
+    }
+    .show-img{
+      width: 400px;
+      height: 300px;
+      margin: 50px 50px 0;
+      border-radius: 5px;
+      border: 2px solid #aaa;
+    }
+    .show-img-btn{
+      height: 100px;
+      padding: 0 50px;
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+    }
+    .show-img-btn div,.show-img-btn a{
+      padding:10px 20px;
+      border-radius: 10px;
+      font: 20px '黑体';
+      background-color: #e8e8e8;
+    }
+
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <div class="tools">
+      <div class="tools-item pen">
+        <img src="../img/pen.png" alt="" srcset="">
+      </div>
+      <div class="tools-item arc">
+        <img src="../img/arc.png" alt="" srcset="">
+      </div>
+      <div class="tools-item rect">
+        <img src="../img/rect.png" alt="" srcset="">
+      </div>
+      <div class="tools-item line">
+        <img src="../img/line.png" alt="" srcset="">
+      </div>
+      <!-- <div class="tools-item eraser">
+        <img src="../img/eraser.png" alt="" srcset="">
+      </div> -->
+      <div class="clear">
+        <img src="../img/reset.png" alt="" srcset="">
+      </div>
+      <div class="color">
+        <div class="color_content"></div>
+        <input class="color_text" type="text">
+      </div>
+      <div class="pixel">
+        <div class="pixel-line-wrap">
+          <div class="pixel_line"></div>
+        </div>
+        <input class="pixel_text" type="text">
+      </div>
+      <div class="download">
+        <img src="../img/download.png" alt="" srcset="">
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="message">
+      <div class="coords"></div>
+      <div class="board-size"></div>
+    </div>
+    <div class="show-img-wrap">
+      <img class="show-img" src="" alt="">
+      <div class="show-img-btn">
+        <a class="download-btn" download="file_img">下载</a>
+        <div class="cancel-btn">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <script type='text/javascript'>
+  function debounce(fn,delay=1000){
+    let timer=null
+    return function(){
+      if(timer){
+        clearTimeout(timer)
+        timer=null
+      }else{
+        timer=setTimeout(fn,delay)
+      }
+    }
+  }
+
+  document.body.onresize=()=>{
+    console.log('onresize')
+    debounce(window.history.go(0))
+  }
+  let toolsArr=document.querySelectorAll('.tools-item')
+
+  console.log(toolsArr)
+  toolsArr.forEach((i,index)=>{
+    i.addEventListener('click',(e)=>{
+      let last_target=document.querySelector('.'+board.tool_type)
+      last_target.className='tools-item '+board.tool_type
+      board.tool_type=index===0?'pen':index===1?'arc':index===2?'rect':index===3?'line':'eraser'
+      let target=document.querySelector('.'+board.tool_type)
+      target.className='tools-item '+board.tool_type+' choose_tool'
+    })
+  })
+  document.querySelector('.clear').addEventListener('click',e=>{
+    board.context.clearRect(0,0,board_width,body_height)
+    board.last_board=null
+  })
+ /*  document.querySelector('.clear').addEventListener('color',e=>{
+    board.context.clearRect(0,0,board_width,body_height)
+  }) */
+
+  let container=document.querySelector('.container')
+  let body_width=document.body.offsetWidth
+  let body_height=document.body.offsetHeight
+  let board_width=document.body.offsetWidth-100
+  let board_height=document.body.offsetHeight-120
+
+    var board={
+      is_draw:false,
+      tool_type:'pen',
+      pixel:1,
+      color:'#000',
+      fillColor:'#000',
+      last_node:null,
+      context:null,
+      last_board:null,
+      last_point:null,
+      handle_history:[],
+      back_history:[],
+      handle_num:0,
+      pen_fun:function(e){
+        let ctx=this.context
+        let x=e.offsetX
+        let y=e.offsetY
+        ctx.beginPath()
+        ctx.arc(x,y,this.pixel,0,2*Math.PI)
+        ctx.fillStyle=this.color
+        ctx.strokeStyle=this.color
+        ctx.fill()
+        //ctx.stroke()
+        ctx.closePath()
+      },
+      line_fun:function(e){
+        let ctx=this.context
+        let x=e.offsetX
+        let y=e.offsetY
+        ctx.clearRect(0,0,board_width,board_height)
+        if(this.last_board){
+          ctx.putImageData(this.last_board,0,0,0,0,board_width,board_height)
+        }
+        ctx.beginPath()
+        ctx.moveTo(this.last_node.offsetX,this.last_node.offsetY)
+        ctx.lineTo(x,y)
+        ctx.lineWidth=this.pixel
+        ctx.strokeStyle=this.color
+        ctx.lineCap='round'
+        ctx.stroke()
+        ctx.closePath()
+
+      },
+      arc_fun:function(e){
+        let ctx=this.context
+        let x=this.last_node.offsetX
+        let y=this.last_node.offsetY
+        let radius=Math.sqrt(Math.pow(e.offsetX-this.last_node.offsetX,2)+Math.pow(e.offsetY-this.last_node.offsetY,2))
+        
+        ctx.clearRect(0,0,board_width,board_height)
+        if(this.last_board){
+          ctx.putImageData(this.last_board,0,0,0,0,board_width,board_height)
+        }
+        ctx.beginPath()
+        ctx.arc(x,y,radius,0,2*Math.PI)
+        ctx.strokeStyle=this.color
+        ctx.lineWidth=this.pixel
+        ctx.stroke()
+        ctx.closePath()
+      },
+      rect_fun:function(e){
+        let ctx=this.context
+        let x=this.last_node.offsetX
+        let y=this.last_node.offsetY
+        let width=e.offsetX-this.last_node.offsetX
+        let height=e.offsetY-this.last_node.offsetY
+
+        ctx.clearRect(0,0,board_width,board_height)
+        if(this.last_board){
+          ctx.putImageData(this.last_board,0,0,0,0,board_width,board_height)
+        }
+        
+        ctx.beginPath()
+        ctx.rect(x,y,width,height)
+        ctx.strokeStyle=this.color
+        ctx.lineWidth=this.pixel
+        ctx.stroke()
+        ctx.closePath()
+      },
+      eraser_fun:function(e){
+        console.log('eraser_fun')
+        let ctx=this.context
+        let x=e.offsetX
+        let y=e.offsetY
+        ctx.beginPath()
+        ctx.fillStyle='#fff'
+        ctx.fillRect(x,y,this.pixel,this.pixel)
+        ctx.strokeStyle='#000'
+        ctx.stroke()
+        ctx.closePath()
+      },
+      goHistory:function(n){
+        //console.log(imageData)
+        console.log(board.handle_history)
+        console.log(board.handle_history[n])
+        let ctx=this.context
+        if(board.handle_history[n]){
+          ctx.putImageData(board.handle_history[n],0,0)
+        }
+      }
+    }
+    document.querySelector('.pen').className='tools-item '+board.tool_type+' choose_tool'
+    let show_color=document.querySelector('.color_content')
+    show_color.style.background=board.color
+    let input=document.querySelector('.color_text')
+    input.value=board.color
+    input.addEventListener('change',e=>{
+      board.color=input.value
+      show_color.style.background=board.color
+      pixel_line.style.background=board.color
+      pixel_line.style.height=board.pixel
+    })
+    let pixel_line=document.querySelector('.pixel_line')
+    pixel_line.style.height=board.pixel+'px'
+    pixel_line.style.background=board.color
+    let input_line=document.querySelector('.pixel_text')
+    input_line.value=board.pixel
+    input_line.addEventListener('change',e=>{
+      board.pixel=input_line.value
+      pixel_line.style.height=(board.pixel>20?20:board.pixel)+'px'
+      show_color.style.background=board.color
+      console.log(pixel_line)
+    })
+    let coords=document.querySelector('.coords')
+    coords.innerHTML='X:0 , Y:0'
+    let board_size=document.querySelector('.board-size')
+    board_size.innerHTML='W:'+board_width+' , H:'+board_height
+
+
+
+    let canvas=document.querySelector('#canvas')
+    canvas.setAttribute('width',board_width)
+    canvas.setAttribute('height',board_height)
+    let ctx=canvas.getContext('2d')
+    board.context=ctx
+    canvas.onmousemove=e=>{
+      //console.log(board.tool_type)
+      if(board.is_draw){
+        board[board.tool_type+'_fun'](e)
+      }else{
+        
+      }
+      //显示坐标轴，和画板尺寸
+      let x=e.offsetX
+      let y=e.offsetY
+      coords.innerHTML='X:'+x+' , Y:'+y
+    }
+
+    canvas.onmousedown=e=>{
+      console.log('onmousedown')
+      board.is_draw=true
+      board.last_node=e
+      board.handle_history.push(ctx.getImageData(0,0,board_width,board_height))
+      board.handle_num=board.handle_history.length
+    }
+    canvas.onmouseup=e=>{
+      board.is_draw=false
+      board.last_node=null
+      board.last_board=ctx.getImageData(0,0,board_width,board_height)
+    }
+
+    document.onkeydown=e=>{
+      if(e.ctrlKey&&!e.shiftKey&&e.keyCode==90){
+        console.log('ctrl+shift+z')
+        /* if(board.handle_history.length!==0){
+          let imageData=board.handle_history[board.handle_history.length-1]
+          board.handle_num=board.handle_history.length
+          board.goHistory(board.handle_num-1)
+          imageData=board.handle_history.pop()
+          board.handle_num=board.handle_history.length
+          board.back_history.push(imageData)
+
+        } */
+      }else if(e.ctrlKey&&e.shiftKey&&e.keyCode==90){
+        console.log('ctrl+shift+z')
+
+      }
+    }
+    let download_img=document.querySelector('.show-img-wrap')
+    let download_wrap=document.querySelector('.download')
+    download_wrap.addEventListener('click',()=>{
+      let show_img=document.querySelector('.show-img')
+      download_img.style.display='block';
+      let url=canvas.toDataURL()
+      show_img.src=url
+      board.download_img_url=url
+    })
+    let download_btn=document.querySelector('.download-btn')
+    download_btn.addEventListener('click',()=>{
+      download_btn.href=board.download_img_url
+      download_btn.click()
+    })
+    let cancel_btn=document.querySelector('.cancel-btn')
+    cancel_btn.addEventListener('click',()=>{
+      console.log('cancel_btn click')
+      download_img.setAttribute('style','display.hidden')
+      //download_img.style.display='hidden'
+    })
+
+  </script>
+
+</body>
+</html>

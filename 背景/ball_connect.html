@@ -1,0 +1,131 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-06-03 10:39:15
+ * @LastEditTime: 2021-06-04 11:33:48
+ * @FilePath: \demo\canvas_demo\demo_items\ball_connect.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body,.container{
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script type="text/javascript">
+  let body=document.body
+  let body_width=body.offsetWidth
+  let body_height=body.offsetHeight
+  let canvas =document.querySelector('canvas')
+  canvas.width=body_width
+  canvas.height=body_height
+  let ctx=canvas.getContext('2d')
+
+  function Ball(x,y,k,r=6){
+    this.x=parseInt(Math.random()*body_width)
+    this.y=parseInt(Math.random()*body_height)
+    this.r=parseInt(Math.random()*3+3)
+    this.dx=parseInt(Math.random()*4-2)*.1
+    this.dy=parseInt(Math.random()*4-2)*.1
+  }
+  Ball.prototype.ctx=ctx
+  Ball.prototype.Max_x=body_width
+  Ball.prototype.Max_y=body_height
+  Ball.prototype.render=function(){
+    
+    let ctx=this.ctx
+
+    ctx.beginPath()
+    ctx.globalAlpha=1
+    ctx.arc(this.x,this.y,this.r,0,2*Math.PI)
+    ctx.fillStyle=this.color?this.color:'#c8c8c8'
+    ctx.fill()
+    ctx.closePath()
+
+    //console.log(ball_arr)
+    ball_arr.forEach(b=>{
+      let d_x=Math.abs(this.x-b.x)
+      let d_y=Math.abs(this.y-b.y)
+      let diff=Math.sqrt(Math.pow(d_x,2)+Math.pow(d_y,2))
+      if(diff<=200&&diff>50){
+        ctx.beginPath()
+        ctx.globalAlpha=.1
+        ctx.moveTo(this.x,this.y)
+        ctx.lineTo(b.x,b.y)
+        ctx.strokeStyle='#666'
+        ctx.stroke()
+        ctx.closePath()
+      }else if(diff>20&&diff<=50){
+        ctx.beginPath()
+        ctx.globalAlpha=.3
+        ctx.moveTo(this.x,this.y)
+        ctx.lineTo(b.x,b.y)
+        ctx.strokeStyle='#666'
+        ctx.stroke()
+        ctx.closePath()
+      }else if(diff>=0&&diff<=20){
+        ctx.beginPath()
+        ctx.globalAlpha=.5
+        ctx.moveTo(this.x,this.y)
+        ctx.lineTo(b.x,b.y)
+        ctx.strokeStyle='#666'
+        ctx.stroke()
+        ctx.closePath()
+      }
+    })    
+
+  }
+  Ball.prototype.run=function(){
+
+  }
+  Ball.prototype.update=function(){
+    this.x+=this.dx
+    this.y+=this.dy
+    if(this.x<this.r||this.x>body_width-this.r){
+      this.dx=-this.dx
+    }else if(this.y<this.r||this.y>body_height-this.r){
+      this.dy=-this.dy
+    }
+  }
+
+  let ball_arr=[]
+  for(let i=0;ball_arr.length<50;i++){
+    let ball=new Ball()
+    if(ball.dx!==0&&ball.dy!==0){
+      ball.render()
+      ball_arr.push(ball)
+    }
+  }
+  setInterval(()=>{
+    ctx.clearRect(0,0,body_width,body_height)
+    ball_arr.forEach(b=>{
+      if(!(b.dx===0||b.dy===0)){
+        b.update()
+        b.render()
+      }
+      
+    },16)
+  })
+
+  
+
+
+  </script>
+</body>
+</html>

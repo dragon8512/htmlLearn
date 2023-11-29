@@ -1,0 +1,72 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-06-04 11:48:37
+ * @LastEditTime: 2021-06-04 16:29:17
+ * @FilePath: \demo\canvas_demo\demo_items\flash.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body,.container{
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script type="text/javascript">
+    let body=document.body
+    let body_width=body.offsetWidth
+    let body_height=body.offsetHeight
+    let canvas =document.querySelector('canvas')
+    canvas.width=body_width
+    canvas.height=body_height
+    let ctx=canvas.getContext('2d')
+    const weather={
+      sky_color:'#0a0a0a',
+      sky_flash:function(color='#1a1a1a',timeout=200){
+        ctx.beginPath()
+        ctx.fillStyle=color
+        ctx.fillRect(0,0,body_width,body_height)
+        ctx.closePath()
+
+        setTimeout(() => {
+          ctx.beginPath()
+          ctx.fillStyle=this.sky_color
+          ctx.fillRect(0,0,body_width,body_height)
+          ctx.closePath()
+        }, timeout);
+      },
+      flash:function(){
+        //长度200~600
+        //宽度2~10
+        //线斜率改变次数5~10
+
+      }
+    }
+
+    ctx.beginPath()
+    ctx.fillStyle='#0a0a0a'
+    ctx.fillRect(0,0,body_width,body_height)
+    ctx.closePath()
+
+    
+
+
+  </script>
+</body>
+</html>

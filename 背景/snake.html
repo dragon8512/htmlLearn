@@ -1,0 +1,341 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-05-30 16:17:21
+ * @LastEditTime: 2021-05-30 16:17:21
+ * @FilePath: \demo\canvas_demo\demo_items\snake.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas_demo snake</title>
+  <style>
+    *{
+      user-select: none;
+      margin: 0;
+      padding:0;
+    }
+    body{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container{
+      box-sizing: border-box;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      border:1px solid #000;
+      border-radius: 10px;
+      background-color: #d8d8d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas{
+      /*border-radius: 10px;*/
+      border:1px solid #555;
+      background-color: #fff;
+      box-shadow: 5px 5px 20px rgba(0,0,0,.5);
+    }
+    .message{
+      position: absolute;
+      right: 50px;
+      bottom: 20px;
+      width: auto;
+      height: 20px;
+      line-height: 20px;
+      font:14px '宋体';
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coords{
+      margin-right: 10px;
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas" width="1400px" height="800px"></canvas>
+    <div class="message">
+      <div class="coords"></div>
+    </div>
+  </div>
+
+  <script type='text/javascript'>
+  let body=document.querySelector('body')
+  body.onkeydown=e=>{//change_direction
+    let snake=map.snake
+    let direction=''
+    if(e.keyCode===37&&snake.direction!=='left'&&snake.direction!=='right'){
+      direction='left'
+    }else if(e.keyCode===38&&snake.direction!=='up'&&snake.direction!=='down'){
+      direction='up'
+    }else if(e.keyCode===39&&snake.direction!=='right'&&snake.direction!=='left'){
+      direction='right'
+    }else if(e.keyCode===40&&snake.direction!=='down'&&snake.direction!=='up'){
+      direction='down'
+    }
+    console.log(direction)
+    if(direction!==''){
+      snake.change_direction(direction)
+    }
+  }
+  let coords=document.querySelector('.coords')
+  let canvas=document.querySelector('#canvas')
+  let ctx=canvas.getContext('2d')
+
+  
+  const map={
+    direction:'',
+    is_done:false,
+    context:null,
+    coords:null,
+    food:null,
+    snake:{
+      header:{},
+      body:[],
+      run_timer:null,
+      speed:200,
+      render:function(){
+        let ctx=map.context
+
+        //随机生成头部，范围 x:400~1000(20~50)  y:200~600(10~30) 20的倍数
+        let x=(Math.random()*30+20).toFixed(0)*20
+        let y=(Math.random()*20+10).toFixed(0)*20
+        console.log(x)
+        console.log(y)
+        
+        ctx.beginPath()
+        ctx.fillStyle='#a00'
+        ctx.fillRect(x,y,20,20)
+        ctx.closePath()
+
+        this.header={x,y,color:'#a00'}
+
+        //随机生成body,方向随机，长度3, 0~1左 1~2上 2~3右 3~4下
+        let d_r=Math.random()*4
+        let direction=d_r>=0&&d_r<1?'left':d_r>=1&&d_r<2?'up':d_r>=2&&d_r<3?'right':'down'
+        let body_arr=[]
+        for(let i=1;i<=5;i++){
+          if(direction==='right'){
+            body_arr.push({x:x-i*20,y})
+
+          }else if(direction==='up'){
+            body_arr.push({x:x,y:y+i*20})
+          }else if(direction==='left'){
+            body_arr.push({x:x+i*20,y})
+          }else{
+            body_arr.push({x,y:y-i*20})
+          }
+        }
+
+        body_arr.forEach(i=>{
+          i.color='#0a0'
+          ctx.beginPath()
+          ctx.fillStyle='#0a0'
+          ctx.fillRect(i.x,i.y,20,20)
+          
+          ctx.closePath()
+        })
+
+        this.body=body_arr
+        this.direction=direction
+        console.log(direction)
+        
+
+      },
+      run:function(){
+        if(map.is_done) return
+        let direction=this.direction
+        let header=this.header
+        let body=this.body
+        let food=map.food
+
+        if(this.run_timer){
+          clearInterval(this.run_timer)
+          this.run_timer=null
+        }
+        //console.log(header)
+
+        this.run_timer=setInterval(()=>{
+          for(let i=body.length-1;i>=0;i--){
+              if(i!==0){
+                body[i]=body[i-1]
+              }else{
+                body[0]={x:header.x,y:header.y,color:'#0a0'}
+              }
+            }
+          if(direction==='left'){
+            header.x-=20
+          }else if(direction==='up'){
+            header.y-=20
+          }else if(direction==='right'){
+            header.x+=20
+          }else{
+            header.y+=20
+          }
+          //console.log(header)
+          //console.log(body)
+          //eat_food
+          
+          if(header.x===food.x&&header.y===food.y){
+            console.log('eat_food')
+            this.eat_food()
+            map.food=null
+          }
+          if(this.check_done()){
+            map.is_done=true
+            clearInterval(this.run_timer)
+            this.run_timer=null
+            alert('游戏结束')
+            return 
+          }else{
+
+            map.render()
+
+            let render_arr=[header,...body]
+            render_arr.forEach(i=>{
+              ctx.beginPath()
+              ctx.strokeStyle='#666'
+              ctx.fillStyle=i.color
+              ctx.rect(i.x,i.y,20,20)
+              ctx.stroke()
+              ctx.fill()
+              ctx.closePath()
+            })
+          }
+        },this.speed)
+        
+      },
+      change_direction:function(direction){
+        this.direction=direction
+        this.run()
+      },
+      check_done:function(){//检查是否结束游戏
+        let x=this.header.x
+        let y=this.header.y
+        let x_range=[0,1400]
+        let y_range=[0,800]
+        //console.log(x)
+        //console.log(y)
+
+        if(x<x_range[0]||y<y_range[0]||x>x_range[1]||y>y_range[1]){
+          return true
+        }
+        if(this.body.some(i=>i.x===x&&i.y===y)){
+          return true
+        }
+      },
+      eat_food:function(){
+        let tail=this.body[this.body.length-1]
+        let x=this.header.x
+        let y=this.header.y
+        let direction=map.direction
+        console.log(direction)
+        if(direction==='right'){
+          this.body.push({x:tail.x-20,y:tail.y})
+        }else if(direction==='up'){
+          this.body.push({x:tail.x,y:tail.y+20})
+        }else if(direction==='left'){
+          this.body.push({x:tail.x+20,y:tail.y})
+        }else{
+          this.body.push({x:tail.x,y:tail.y-20})
+        }
+        //console.log(this.body)
+        //console.log(this.body.length)
+
+        if(this.speed!==50){
+          this.speed-=1
+        }
+
+          this.run()
+      }
+    },
+    render:function(){
+      console.log('map render')
+      let ctx=this.context
+
+      /*for(let i=0;i<70;i++){
+        ctx.beginPath()
+        ctx.moveTo(i*20,0)
+        ctx.lineTo(i*20,900)
+        ctx.strokeStyle='#f3f3f3'
+        ctx.stroke()
+        ctx.closePath()
+      }
+      for(let i=0;i<40;i++){
+        ctx.beginPath()
+        ctx.moveTo(0,i*20)
+        ctx.lineTo(1400,i*20)
+        ctx.strokeStyle='#f3f3f3'
+        ctx.stroke()
+        ctx.closePath()
+      }*/
+      ctx.clearRect(0,0,1400,800)
+      this.set_food()
+
+    },
+    set_food:function(){
+      let ctx=this.context
+      if(this.food===null){
+        let result=null
+        let snake_arr=[this.snake.header,...this.snake.body]
+        function getRadom(){
+          let x=(Math.random()*70).toFixed(0)*20
+          let y=(Math.random()*40).toFixed(0)*20
+          result={x,y}
+          //return result
+        }
+        getRadom()
+        while(snake_arr.some(i=>i.x===result.x&&i.y===result.y)){
+          getRadom()
+        }
+        /*if(snake_arr.some(i=>i.x===x&&i.y===y)){
+            result=getRadom()
+          }*/
+        this.food=result
+      }
+      ctx.beginPath()
+      ctx.fillStyle='#888'
+      ctx.fillRect(this.food.x,this.food.y,20,20)
+      ctx.closePath()
+
+    },
+    
+  }
+  map.context=ctx
+  map.render()
+  map.snake.render()
+  map.snake.run()
+
+  canvas.onmousemove=e=>{
+    
+    //显示坐标轴
+    let x=e.offsetX
+    let y=e.offsetY
+    coords.innerHTML='X:'+x+' , Y:'+y
+
+    map.coords={x,y}
+  }
+
+  canvas.onmousedown=e=>{
+
+  }
+  canvas.onmouseup=e=>{
+    
+  }
+
+  </script>
+
+</body>
+</html>

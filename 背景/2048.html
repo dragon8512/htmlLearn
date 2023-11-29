@@ -1,0 +1,335 @@
+<!--
+ * @Author: wwssaabb
+ * @Date: 2021-05-31 00:02:21
+ * @LastEditTime: 2021-05-31 17:37:00
+ * @FilePath: \demo\canvas_demo\demo_items\2048.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas_demo snake</title>
+  <style>
+    *{
+      user-select: none;
+      margin: 0;
+      padding:0;
+    }
+    body{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container{
+      box-sizing: border-box;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      border:1px solid #000;
+      border-radius: 10px;
+      background-color: #d8d8d8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas{
+      /*border-radius: 10px;*/
+      border:1px solid #555;
+      background-color: #fff;
+      box-shadow: 5px 5px 20px rgba(0,0,0,.5);
+    }
+    .message{
+      position: absolute;
+      right: 50px;
+      bottom: 20px;
+      width: auto;
+      height: 20px;
+      line-height: 20px;
+      font:14px '宋体';
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coords{
+      margin-right: 10px;
+      padding: 0 10px;
+      background-color: #e8e8e8;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas" width="500px" height="500px"></canvas>
+    <div class="message">
+      <div class="coords"></div>
+    </div>
+  </div>
+
+  <script type='text/javascript'>
+  let body=document.querySelector('body')
+  body.onkeydown=e=>{//change_direction
+    
+    let direction=''
+    if(e.keyCode===37){
+      direction='left'
+      //board.set_number()
+    }else if(e.keyCode===38){
+      direction='up'
+    }else if(e.keyCode===39){
+      direction='right'
+    }else if(e.keyCode===40){
+      direction='down'
+    }
+    console.log(direction)
+    if(direction!==''){
+      board.play(direction)
+      board.render()
+      //board.check_done()
+    }
+    
+  }
+  let coords=document.querySelector('.coords')
+  let canvas=document.querySelector('#canvas')
+  let ctx=canvas.getContext('2d')
+  ctx.save()
+  ctx.translate(50,50)
+
+  const board={
+    context:null,
+    is_done:false,
+    numbers:{
+      2:'#eee4da',
+      4:'#ede0c8',
+      8:'#f2b179',
+      16:'#f59563',
+      32:'#f67c5f',
+      64:'#f65e3b',
+      128:'#edcf72',
+      256:'#edcc61',
+      512:'#edc850',
+      1024:'#fd5b78',
+      2048:'#fe4c40',
+    },
+    block_arr:null,
+    render:function(){
+      if(this.is_done) return 
+      //4*4  
+      let ctx=this.context
+
+      /* ctx.beginPath()
+      ctx.fillStyle='#fff'
+      ctx.strokeStyle='#bbada0'
+      ctx.lineWidth=10
+      ctx.lineCap='round'
+      ctx.rect(0,0,400,400)
+      ctx.fill()
+      ctx.stroke()
+      ctx.closePath() */
+      if(!this.block_arr){
+        this.fillRoundRect(0,0,400,400,20,'#bbada0')
+        /* ctx.arc(50,50,50,Math.PI,3*Math.PI/2)
+        ctx.stroke() */
+        //this.fillRoundRect(20,20,75,75,10,'#eee4da',{size:50,content:'2'})
+        //生成矩形方阵 4*4
+        let block_arr=[]
+        for(let i=0;i<4;i++){
+          for(let a=0;a<4;a++){
+            let block={
+              _x:10+i*97.5,
+              _y:10+a*97.5,
+              x:i,
+              y:a,
+              color:''
+            }
+            Object.defineProperty(block,'text',{
+              set(n){
+                this.value=n
+                //console.log('set:'+n)
+                this.color=board.numbers[n]
+              },
+              get(){
+                return this.value
+              }
+            })
+            block_arr.push(block)
+          }
+        }
+        console.log(block_arr)
+        this.block_arr=block_arr
+
+        //初始化棋盘，给随机两个block数值
+
+        this.set_number()
+      }
+      
+      //console.log(this.block_arr)
+      //渲染
+      this.block_arr.forEach(i=>{
+        this.fillRoundRect(i._x,i._y,87.5,87.5,10,i.color,i.text)
+      })
+    },
+    fillRoundRect:function(x,y,w,h,r,color,text){
+      let ctx=this.context
+
+      //画左上弧边
+      ctx.beginPath()
+      ctx.arc(x+r,y+r,r,Math.PI,3*Math.PI/2)
+      //画上边
+      ctx.lineTo(w-r,y)
+      //画右上弧边
+      ctx.arc(w-r+x,y+r,r,3*Math.PI/2,2*Math.PI)
+      //画右边
+      ctx.lineTo(w+x,h-r)
+      //画右下弧边
+      ctx.arc(w-r+x,h-r+y,r,0,Math.PI/2)
+      //画下边
+      ctx.lineTo(w+x,h+y)
+      //画左下弧边
+      ctx.arc(r+x,h+y-r,r,Math.PI/2,Math.PI)
+      //画左边
+      ctx.lineTo(x,h-(y+r))
+      ctx.fillStyle=color?color:'#ccc0b3'
+      ctx.fill()
+      
+      if(text){
+        ctx.font='bold 30px 楷体'
+        ctx.fillStyle='#fff'
+        ctx.textAlign='center'
+        ctx.textBaseline='middle'
+        ctx.fillText(text,w/2+x,h/2+y)
+        ctx.closePath()
+      }
+      
+    },
+    set_number:function(){
+      let choose_arr=this.block_arr.filter(i=>!i.text)
+      //console.log(choose_arr)
+      if(choose_arr.length>=1){
+        if(choose_arr.length>=2){
+          choose_arr[(Math.random()*(choose_arr.length-1)).toFixed(0)].text=2
+          choose_arr=this.block_arr.filter(i=>!i.text)
+          choose_arr[(Math.random()*(choose_arr.length-1)).toFixed(0)].text=Math.random()>0.6?4:2
+        }else if(choose_arr.length===1){
+          choose_arr[(Math.random()*(choose_arr.length-1)).toFixed(0)].text=2
+        }
+      }else{
+        this.check_done()
+      }
+      /* choose_arr[(Math.random()*(choose_arr.length-1)).toFixed(0)].text=2
+      choose_arr=this.block_arr.filter(i=>!i.text)
+      choose_arr[(Math.random()*(choose_arr.length-1)).toFixed(0)].text=Math.random()>0.6?4:2 */
+      
+    },
+    play(direction){
+      if(this.is_done) return 
+      let arr=this.block_arr
+      let choose_arr=[]
+      if(direction==='left'){
+        for(let i=0;i<4;i++){
+          choose_arr.push([...(arr.filter(a=>a.y===i)).reverse()])
+        }
+      }else if(direction==='right'){
+        for(let i=0;i<4;i++){
+          choose_arr.push([...arr.filter(a=>a.y===i)])
+        }
+      }else if(direction==='up'){
+        for(let i=0;i<4;i++){
+          choose_arr.push([...(arr.filter(a=>a.x===i)).reverse()])
+        }
+      }else if(direction==='down'){
+        for(let i=0;i<4;i++){
+          choose_arr.push([...arr.filter(a=>a.x===i)])
+        }
+      }
+      //console.log(choose_arr)
+      global_arr=choose_arr[1]
+      choose_arr.forEach(arr=>{
+        this.play_compound(arr)
+      })
+      this.set_number()
+    },
+    play_compound(arr){
+      //let ctx=this.context
+      for(let i=arr.length-2;i>=0;i--){
+        if(arr[i].text!==undefined){
+          for(let a=i;a<arr.length-1;a++){
+            if(arr[a+1].text===undefined){
+              arr[a+1].text=arr[a].text
+              arr[a].text=undefined
+            }else if(arr[a+1].text===arr[a].text){
+              arr[a+1].text=arr[a+1].text+arr[a].text
+              arr[a].text=undefined
+            }
+          }
+        }
+      }
+      //console.log(arr)
+      this.render()
+    },
+    check_done:function(){
+      let arr=this.block_arr
+      if(arr.some(i=>i.text===undefined)){
+        this.is_done=false
+      }else{
+        let is_done=arr.every(i=>{
+          let result=[]
+          let block1=arr.find(a=>a.x===i.x+1&&a.y==i.y)
+          if(block1){
+            result.push(block1.text===i.text)
+          }
+          let block2=arr.find(a=>a.x===i.x-1&&a.y==i.y)
+          if(block2){
+            result.push(block2.text===i.text)
+          }
+          let block3=arr.find(a=>a.x===i.x&&a.y==i.y+1)
+          if(block3){
+            result.push(block3.text===i.text)
+          }
+          let block4=arr.find(a=>a.x===i.x&&a.y==i.y-1)
+          if(block4){
+            result.push(block4.text===i.text)
+          }
+          
+          //let result=block1.text===i.text||block2.text===i.text||block3.text===i.text||block4.text===i.text
+          return !result.some(i=>i===true)
+        })
+        console.log('游戏结束:'+is_done)
+        this.is_done=is_done
+        if(is_done){
+          alert('游戏结束')
+        }
+      }
+    }
+  }
+  
+  
+  board.context=ctx
+  board.render()
+  var global_arr
+  canvas.onmousemove=e=>{
+    
+    //显示坐标轴
+    let x=e.offsetX
+    let y=e.offsetY
+    coords.innerHTML='X:'+x+' , Y:'+y
+
+    //
+  }
+
+  canvas.onmousedown=e=>{
+
+  }
+  canvas.onmouseup=e=>{
+    
+  }
+
+  </script>
+
+</body>
+</html>
