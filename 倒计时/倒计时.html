@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<style>
+    
+    .time{
+        font-weight: bold;
+        font-size: 22px;
+    }
+    .time_day{
+        color: red;
+    }
+    .container{
+      width:100%;
+      grid-row-gap: 20px;
+      grid-column-gap: 20px;
+      display:grid;      /*grid布局*/
+      grid-template-columns:1fr  1fr;  /*设置列*/
+    }
+    .d{
+        border:4px solid blue;
+    }
+    .item{
+        width: 100%;
+        border:1px solid #ffaaff;
+        height:60px;
+        font-size: 16px;
+        line-height: 30px;
+        display:grid;
+        grid-template-columns:200px auto;
+    }
+    .desc{
+        border:1px solid #ffaa11;
+        overflow: hidden; 
+        word-wrap: break-word;
+        grid-column: 2 / 3;
+        grid-row: 1 / 3;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:visited {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:active {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .setting{
+        position: absolute;
+        right: 10px;
+        top:10px;
+        border:2px solid #ffaaff;
+        opacity: 0.9;
+    }
+    .add{
+        position: absolute;
+        right: 10px;
+        top:10px;
+        width: 500px;
+        border:2px solid #ffaaff;
+        opacity: 0.9;
+        display: none;
+    }
+    .add2{
+        position: relative;
+        display:grid;      /*grid布局*/
+        grid-template-columns:3fr  1fr;  /*设置列*/
+    }
+    .addFields{
+        display:grid;      /*grid布局*/
+        grid-template-columns:1fr  3fr;  /*设置列*/
+    }
+
+</style>
+
+<body>
+    <button class="setting" onclick="openAdd()">设置</button>
+    <div class="add" id="addPage">
+        <div class="add2" id="addJsonPage">
+            <textarea  id="jsonValue" name="message" rows="10"> 免费抽,抽奖预告, https://space.bilibili.com/3493086911007529,https://space.bilibili.com/226257459</textarea>
+             <button onclick="addJsonValue()" type="">json追加</button>
+        </div>
+
+        <div class="add2" id="addFieldPage">
+            <div class="addFields">
+                <span>时间：</span><input class="addField" id="time" type="text" name=""/>
+                <span>url:</span><input class="addField" id="url" type="text" name=""/>
+                <span>描述：</span><input class="addField" id="desc" type="text" name=""/>
+                <span>图片：</span><input class="addField" id="imgs" readonly="true" type="text" name=""/>
+            </div>
+            <button  onclick="addFieldsValue()" type="">追加</button>
+        </div>
+        
+        <button onclick="copyValue()">复制值</button> 
+        <button onclick="storage()">存储</button>
+        <button onclick="clearStorage()">清空存储</button>
+        <button onclick="closeAdd()"style="width: 100%" type="">关闭</button>
+    </div>
+
+ <div class="container">
+    <div class="d" id="feature">
+        
+    </div>
+    <div class="d" id="past">
+
+    </div>
+ </div>
+ 
+
+    <script type="text/javascript">
+        //  列表
+        var dataDefault = [];
+        /*
+[
+    {
+        "time": "2023-12-31 14:00:00",
+        "url": "https://b23.tv/sv9cBQH",
+        "desc": "4060Ti 16G 主机,星璨小岚机箱+装饰牌,樱瞳花嫁桌垫",
+        "imgs": []
+    },{
+        "time": "2023-11-29 08:00:00",
+        "url": "https://b23.tv/PzeZTuc",
+        "desc": "红魔电竞装备全家桶,红魔8S Pro+一诺冠军定制版",
+        "imgs": []
+    },{
+        "time": "2023-12-20 17:00:00",
+        "url": "https://b23.tv/8D5s6nN",
+        "desc": "主机御三家大礼包+王泪+蜘蛛侠2+电视,小米手环8NFC版",
+        "imgs": []
+    },{
+        "time": "2023-12-31 18:00:00",
+        "url": "https://b23.tv/tEckPQt",
+        "desc": "CPU Intel i5 13600KF",
+        "imgs": []
+    }
+]
+        */
+
+        /*
+                // 数据存储 
+                localStorage.setItem("daojishi","value");
+                // 数据读取
+                localStorage.getItem("daojishi");
+                // 数据删除
+                localStorage.removeItem("daojishi");
+                //清空localStorage
+                localStorage.clear()
+        */
+
+
+        var daojishi = localStorage.getItem("daojishi");
+        if(daojishi){
+            dataDefault = dataDefault ||[];
+            dataDefault.push(...JSON.parse(daojishi));
+        }
+
+        function openAdd(){
+            document.getElementById("addPage").style.display = 'block';
+        }
+        function closeAdd(){
+            document.getElementById("addPage").style.display = 'none';
+        }
+        function storage(){
+            localStorage.setItem("daojishi",JSON.stringify(dataDefault));
+        }
+        function clearStorage(){
+            localStorage.removeItem("daojishi");
+        }
+        function addJsonValue(){
+            var value = document.getElementById("jsonValue").value;
+            if(value){
+                var arr = JSON.parse(value);
+                if(Array.isArray(arr)){
+                    dataDefault.push(...arr);
+
+                }else{
+                    dataDefault.push(arr);
+                }
+                setHtml()
+            }
+        }
+
+        function addFieldsValue(){
+            
+            var time = document.getElementById("time").value;
+            var url = document.getElementById("url").value;
+            var desc = document.getElementById("desc").value;
+            var imgs = document.getElementById("imgs").value;
+            time = time.replaceAll(/年|月/g,'-')
+            time = time.replaceAll(/日/g,'')
+            if(time && url && desc){
+                var d = {time,url,desc};
+                dataDefault.push(d);
+                setHtml()
+            }else{
+                alert("值不全")
+            }
+        }
+
+        function copyValue(){
+            var input = document.getElementById("jsonValue");
+            input.value = JSON.stringify(dataDefault);
+            input.select();
+            document.execCommand('copy');
+        }
+        function addsetInterval(item,obj_,time_){
+            var countDownDate = new Date(time_).getTime();
+             // 每秒更新倒计时
+            var timer = setInterval(function () {
+                // 获取当前时间
+                var now = new Date().getTime();
+                // 计算距离目标日期的时间差
+                var distance = countDownDate - now;
+                if (distance < 0) {
+                    // 如果距离目标日期已经过去了，则停止倒计时
+                    clearInterval(timer);
+                    obj_.innerHTML = "已到！";
+                    var past = document.getElementById('past');
+                    past.appendChild(item);
+                }else{
+                    // 计算天、小时、分钟和秒
+                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    if(seconds < 10){
+                        seconds = "0" + seconds;
+                    }
+                    // 将时间输出到页面上
+                    obj_.innerHTML = `<span class="time time_day">${days}</span>天<span class="time time_hours">${hours}</span>时<span class="time time_minutes">${minutes}</span>分<span class="time time_seconds">${seconds}</span>秒`;
+                }
+            }, 1000);
+        }
+        function clear(){
+            document.getElementById('feature').innerHTML="";
+            document.getElementById('past').innerHTML="";
+        }
+        function setHtml(){
+            var data = getData();
+            storage();
+            if(data){
+                clear();
+            }
+            console.log("1",data)
+            var len = data.length;
+            for (var i = 0; i < len; i++) {
+                setItem(data[i]);
+            }
+        }
+
+        function setItem(d){
+            // 创建元素
+            var item = document.createElement('div');
+            item.setAttribute('class', 'item');
+
+            var a = document.createElement('a');
+            a.setAttribute('href', d.url);
+            a.setAttribute('target', "_blank");
+            
+            var a1 = document.createElement('a');
+            a1.setAttribute('href', d.url);
+            a1.setAttribute('target', "_blank");
+            a1.innerHTML = d.time;
+
+
+            var span = document.createElement('span');
+            span.setAttribute('class', 'desc');
+            span.innerHTML = d.desc;
+
+            item.appendChild(a1);
+            item.appendChild(a);
+            item.appendChild(span);
+
+            // 元素添加到页面
+            append(item,d.time)
+
+            // 设置倒计时
+            addsetInterval(item,a,d.time);
+        }
+
+        function append(item,time_){
+            var countDownDate = new Date(time_).getTime();
+            var now = new Date().getTime();
+            // 计算距离目标日期的时间差
+            var distance = countDownDate - now;
+            if (distance < 0) {
+                var past = document.getElementById('past');
+                past.appendChild(item);
+            }else{
+                var feature = document.getElementById('feature');
+                feature.appendChild(item);
+            }
+        }
+
+        function getData(){
+            var data = dataDefault;
+            // 排序
+            var dataSort = selectionSort(data);
+            return dataSort;
+        }
+
+        function selectionSort(arr) {
+            var len = arr.length;
+            var minIndex, temp;
+            for (var i = 0; i < len - 1; i++) {
+                minIndex = i;
+                for (var j = i + 1; j < len; j++) {
+                    if (arr[j]['time'] < arr[minIndex]['time']) {     // 寻找最小的数
+                        minIndex = j;                 // 将最小数的索引保存
+                    }
+                }
+                temp = arr[i];
+                arr[i] = arr[minIndex];
+                arr[minIndex] = temp;
+            }
+            return arr;
+        }
+
+
+        setHtml();
+    </script>
+</body>
+
+</html>
