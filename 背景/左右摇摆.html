@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>左右摇摆</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1c1f2f;
+        }
+
+        .container {
+            /* -webkit-box-reflect: below 5px -webkit-linear-gradient(transparent 10%, rgba(0, 0, 0, 0.5)); */
+        }
+
+        .loader {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border: 20px solid transparent;
+            border-radius: 50%;
+            border-bottom-color: #06c8f0;
+            border-right-color: #06c8f0;
+            transform: rotate(45deg);
+            animation: move 1s ease-in-out infinite alternate;
+        }
+
+        .ball {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* background-color: tomato; */
+            animation: move-reverse 0.5s ease-in-out infinite alternate;
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            bottom: 20px;
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        @keyframes move {
+            0% {
+                transform: rotate(0);
+            }
+
+            100% {
+                transform: rotate(90deg);
+            }
+        }
+
+        @keyframes move-reverse {
+            0% {
+                transform: rotate(0);
+            }
+
+            100% {
+                transform: rotate(-180deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="loader">
+            <div class="ball"></div>
+        </div>
+    </div>
+</body>
+
+</html>
