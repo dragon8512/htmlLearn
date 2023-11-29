@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        #wrap {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #5d02ff;
+            margin: 100px auto;
+
+            display: flex;
+        }
+        #wrap > .item {
+            height: 50px;
+            background: #07daa5;
+            text-align: center;
+            line-height: 50px;
+
+            /*flex-shrink: 1;
+            flex-grow: 1;
+            flex-basis: 0;*/
+            /*与上3行等价的语法糖*/
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div class="item">1</div>
+        <div class="item">22</div>
+        <div class="item">333</div>
+        <div class="item">4444</div>
+        <div class="item">55555</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        /*
+        flex-shrink:收缩因子 默认值为1
+            前提flex-wrap:nowrap
+        */
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        #wrap {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #07daa5;
+            margin: 100px auto;
+            /*-webkit-flex*/
+            display: flex;
+            /*控制的是主轴是哪一根/主轴方向 默认水平方向row*/
+            flex-direction: row;
+            /*
+            主轴富裕空间 跟主轴及主轴方向有关
+            flex-start 富裕空间在主轴正方向
+            flex-end 富裕空间在主轴负方向
+            center 富裕空间在主轴两边
+            space-between 富裕空间在项目之间
+            space-around 富裕空间在项目两边(旧版本无)
+            */
+            justify-content: space-around;
+            /*
+            侧轴富裕空间
+            flex-start 侧轴正方向
+            flex-end 侧轴负方向
+            center 侧轴两边
+            baseline 按基线对齐(旧版本无)
+            stretch 等高布局（项目没设置高度）(旧版本无)
+             */
+            align-items: flex-start;
+            flex-wrap: nowrap;
+        }
+        #wrap > .item {
+            width: 50px;
+            height: 50px;
+            background: #5d02ff;
+            text-align: center;
+            line-height: 50px;
+
+            flex-shrink: 1;
+        }
+        #wrap > .item:nth-child(1) {
+            /*flex-grow: 4;*/
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div class="item">1</div>
+        <div class="item">2</div>
+        <div class="item">3</div>
+        <div class="item">4</div>
+        <div class="item">5</div>
+    </div>
+</body>
+</html>

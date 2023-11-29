@@ -1,0 +1,39 @@
+/*暴露出去的注释*/
+/*@申明变量 css一定分号！！！*/
+/*当属性值或选择器为变量是以@{}取得调用*/
+* {
+  margin: 0;
+  padding: 0;
+}
+#wrap {
+  position: relative;
+  width: 300px;
+  height: 400px;
+  background: #07daa5;
+  margin: 0 auto;
+  text-align: center;
+}
+#wrap .inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  /*需自身宽高是确定的*/
+  margin: auto;
+  width: 100px;
+  height: 100px;
+  background: deeppink;
+  /*平级*/
+}
+#wrap .inner:hover {
+  background: #5d02ff;
+}
+/*变量延迟加载*/
+.class {
+  one: 1;
+}
+.class .brass {
+  three: 3;
+}
+/*# sourceMappingURL=01-style.css.map */

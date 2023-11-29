@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        a {
+            text-decoration: none;
+            color: #808080;
+            display: block;
+        }
+        #nav > .row {
+            display: flex;
+        }
+        #nav > .row > .item {
+            flex: 1;
+            text-align: center;
+        }
+        #nav > .row > .item > a:before {
+            content: '';
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 0 auto;
+            border: 1px solid #07daa5;
+            border-radius: 50%;
+        }
+        #nav > .row:nth-child(1) > .item:nth-child(1) > a:before {
+            background: url("img/动物 狗.png") no-repeat;
+        }
+        #nav > .row:nth-child(1) > .item:nth-child(2) > a:before {
+            background: url("img/动物 兔子.png") no-repeat;
+        }
+        #nav > .row:nth-child(1) > .item:nth-child(3) > a:before {
+            background: url("img/动物 猪.png") no-repeat;
+        }
+        #nav > .row:nth-child(1) > .item:nth-child(4) > a:before {
+            background: url("img/动物 猴.png") no-repeat;
+        }
+        #nav > .row:nth-child(1) > .item:nth-child(5) > a:before {
+            background: url("img/动物 羊.png") no-repeat;
+        }
+
+        #nav > .row:nth-child(2) > .item:nth-child(1) > a:before {
+            background: url("img/动物 老虎.png") no-repeat;
+        }
+        #nav > .row:nth-child(2) > .item:nth-child(2) > a:before {
+            background: url("img/动物 老鼠.png") no-repeat;
+        }
+        #nav > .row:nth-child(2) > .item:nth-child(3) > a:before {
+            background: url("img/动物 蛇.png") no-repeat;
+        }
+        #nav > .row:nth-child(2) > .item:nth-child(4) > a:before {
+            background: url("img/动物 鸡.png") no-repeat;
+        }
+        #nav > .row:nth-child(2) > .item:nth-child(5) > a:before {
+            background: url("img/动物 龙.png") no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav">
+        <div class="row">
+            <div class="item">
+                <a href="javascript:;">天狗</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">聚划算</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">天狗国际</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">外卖</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">天狗超市</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="item">
+                <a href="javascript:;">充值中心</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">飞狗旅行</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">领金币</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">拍卖</a>
+            </div>
+            <div class="item">
+                <a href="javascript:;">分类</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

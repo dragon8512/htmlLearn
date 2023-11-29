@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.centered,
+#wrap .inner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+}
+.centered:hover,
+#wrap .inner:hover {
+  background: #060c21 !important;
+}
+#wrap {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border: 1px solid #1ce37c;
+  margin: 0 auto;
+}
+#wrap .inner:nth-child(1) {
+  width: 100px;
+  height: 100px;
+  background: #5d02ff;
+}
+#wrap .inner:nth-child(2) {
+  width: 50px;
+  height: 50px;
+  background: #808080;
+}
+/*# sourceMappingURL=extend.css.map */

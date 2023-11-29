@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .wrapper {
+            display: grid;
+            /*列宽*/
+            grid-template-columns: 1fr 2fr 1fr;
+            /*间距*/
+            grid-gap: 1rem;
+            /*行高*/
+            grid-auto-rows: minmax(100px, auto);
+            /*完全拉伸 默认*/
+            justify-items: stretch;
+            align-items: stretch;
+        }
+
+        .box1 {
+            /*按列轴线顶部对齐*/
+            /*align-self: start;*/
+            grid-column: 1/3;
+            grid-row: 1/3;
+        }
+
+        .box2 {
+            /*按列轴线底部对齐*/
+            /*align-self: end;*/
+            grid-column: 3;
+            grid-row: 1/3;
+        }
+
+        .box3 {
+            /*按行轴线左侧对齐*/
+            /*justify-items: start;*/
+            grid-column: 2/4;
+            grid-row: 3;
+        }
+
+        .box4 {
+            /*按行轴线右侧对齐*/
+            /*justify-items: end;*/
+            grid-column: 1;
+            grid-row: 2/4;
+            border: 1px #00bcd4 dashed;
+        }
+
+        .wrapper > div {
+            background: #eee;
+            padding: 1rem;
+        }
+
+        .wrapper > div:nth-child(odd) {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="box box1">Box 1</div>
+        <div class="box box2">Box 2</div>
+        <div class="box box3">Box 3</div>
+        <div class="box box4">Box 4</div>
+    </div>
+</body>
+</html>

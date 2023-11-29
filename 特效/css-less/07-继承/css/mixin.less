@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+@import "centered-mixin";
+#wrap {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border: 1px solid #1ce37c;
+  margin: 0 auto;
+
+  .inner {
+
+    &:nth-child(1) {
+      .centered(100px,100px,#5d02ff);
+    }
+
+    &:nth-child(2) {
+      .centered(50px,50px,#808080);
+    }
+  }
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        #wrap {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -100px;
+            margin-top: -100px;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #07daa5;
+            border-radius: 50%;
+        }
+        ul > li {
+            position: absolute;
+            left: 99px;
+            top: 0;
+            width: 2px;
+            height: 10px;
+            background: gray;
+            transform-origin: center 100px;
+        }
+        ul > li:nth-child(5n+1) {
+            height: 18px;
+        }
+        #wrap > .hour {
+            position: absolute;
+            top: 70px;
+            left: 97px;
+            width: 6px;
+            height: 30px;
+            background: #000;
+            transform-origin: center bottom;
+        }
+        #wrap > .min {
+            position: absolute;
+            top: 50px;
+            left: 98px;
+            width: 4px;
+            height: 50px;
+            background: #808080;
+            transform-origin: center bottom;
+        }
+        #wrap > .sec {
+            position: absolute;
+            top: 30px;
+            left: 99px;
+            width: 2px;
+            height: 70px;
+            background: #f00;
+            transform-origin: center bottom;
+        }
+        #wrap > .icon {
+            position: absolute;
+            top: 90px;
+            left: 90px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: pink;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <ul>
+
+        </ul>
+        <div class="hour"></div>
+        <div class="min"></div>
+        <div class="sec"></div>
+        <div class="icon"></div>
+    </div>
+</body>
+<script type="text/javascript">
+
+    window.onload = function () {
+        var hourNode = document.querySelector('#wrap > .hour'),
+            minNode = document.querySelector('#wrap > .min'),
+            secNode = document.querySelector('#wrap > .sec')
+
+        var ulNode = document.querySelector('#wrap > ul')
+        var liHtml = ''
+        var styleNode = document.createElement('style')
+        var cssText = ''
+        for(var i = 0; i < 60; i++) {
+            liHtml += '<li></li>'
+            cssText += 'ul > li:nth-child('+(i+1)+') {transform: rotate('+(i*6)+'deg);}'
+        }
+        ulNode.innerHTML = liHtml
+        styleNode.innerHTML = cssText
+        document.head.appendChild(styleNode)
+
+        function move() {
+            var date = new Date(),
+                s = date.getSeconds(),
+                m = date.getMinutes() + s / 60,
+                h = date.getHours() + m / 60
+
+
+            secNode.style.transform = 'rotate('+(6*s)+'deg)'
+            minNode.style.transform = 'rotate('+(6*m)+'deg)'
+            hourNode.style.transform = 'rotate('+(30*h)+'deg)'
+        }
+        move()
+        setInterval(move, 1000)
+    }
+</script>
+</html>
