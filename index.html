@@ -39,14 +39,14 @@
   </style>
 </head>
 <body>
-  <p>对于动画如何添加，当前尚未有任何思路</p>
+  <p>拖拽</p>
   <div class="wrap">
     <div id="one" style="order: 5;" class="item" draggable="true"
       ondragstart="drag(event)"
       ondrop="drop(event)" ondragover="allowDrop(event)"> 5 </div>
     <div id="two" style="order: 2;" class="item" draggable="true"
       ondragstart="drag(event)"
-      ondrop="drop(event)" ondragover="allowDrop(event)"> 2 </div>
+      ondrop="drop(event)" ondragover="allowDrop(event)">  </div>
     <div id="three" style="order: 3;" class="item" draggable="true"
       ondragstart="drag(event)"
       ondrop="drop(event)" ondragover="allowDrop(event)"> 3 </div>
@@ -54,6 +54,7 @@
       ondragstart="drag(event)"
       ondrop="drop(event)" ondragover="allowDrop(event)"> 4 </div>
   </div>
+  <a href="倒计时/倒计时.html">倒计时</a>
   <script>
     function allowDrop(ev) {
       ev.preventDefault();
